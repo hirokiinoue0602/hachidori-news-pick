@@ -12,7 +12,6 @@ const elements = {
   updatedAt: document.querySelector("#updated-at"),
   resultCount: document.querySelector("#result-count"),
   warning: document.querySelector("#warning"),
-  loading: document.querySelector("#loading"),
   error: document.querySelector("#error"),
   empty: document.querySelector("#empty"),
   grid: document.querySelector("#news-grid"),
@@ -58,7 +57,6 @@ elements.copyButtons.forEach((button) => {
   button.addEventListener("click", () => copyDraft(button));
 });
 
-renderLoadingRows();
 loadNews();
 
 async function loadNews() {
@@ -85,7 +83,6 @@ function setLoading(value) {
   elements.refresh.disabled = value;
   elements.refreshIcon.classList.toggle("spinning", value);
   elements.refreshLabel.textContent = value ? "更新中" : "最新に更新";
-  elements.loading.hidden = !value;
   if (value) {
     elements.error.hidden = true;
     elements.empty.hidden = true;
@@ -116,7 +113,6 @@ function render() {
     ? "一部の配信元は取得待ちです"
     : "";
   elements.error.hidden = true;
-  elements.loading.hidden = true;
   elements.empty.hidden = filtered.length > 0;
   elements.grid.hidden = filtered.length === 0;
   elements.grid.replaceChildren(...filtered.map(createListItem));
@@ -188,24 +184,6 @@ function recommendationBadge(score) {
     badge.textContent = "関連ニュース";
   }
   return badge;
-}
-
-function renderLoadingRows() {
-  for (let index = 0; index < 6; index += 1) {
-    const row = el("div", "news-item loading-card");
-    row.append(
-      el("span", "loading-line short"),
-      el("span", "loading-block"),
-      el("span", "loading-line action"),
-    );
-    const block = row.querySelector(".loading-block");
-    block.append(
-      el("span", "loading-line title"),
-      el("span", "loading-line title second"),
-      el("span", "loading-line meta"),
-    );
-    elements.loading.append(row);
-  }
 }
 
 function openDraftDialog(item) {
@@ -306,7 +284,6 @@ function estimateXLength(post, url) {
 }
 
 function renderError() {
-  elements.loading.hidden = true;
   elements.grid.hidden = true;
   elements.empty.hidden = true;
   elements.error.hidden = false;

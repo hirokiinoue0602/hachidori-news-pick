@@ -15,6 +15,10 @@
   box-sizing: border-box;
 }
 
+[hidden] {
+  display: none !important;
+}
+
 html {
   background: var(--paper);
   color: var(--ink);
@@ -370,49 +374,6 @@ h1 {
   background: #f8f9f8;
 }
 
-.loading-card {
-  pointer-events: none;
-}
-
-.loading-block {
-  display: flex;
-  flex-direction: column;
-  gap: 9px;
-}
-
-.loading-line {
-  display: block;
-  width: 100%;
-  height: 14px;
-  border-radius: 4px;
-  background: linear-gradient(90deg, #edf0ee, #f7f8f7, #edf0ee);
-  background-size: 220% 100%;
-  animation: shimmer 1.5s ease-in-out infinite;
-}
-
-.loading-line.short {
-  width: 24px;
-  height: 14px;
-}
-
-.loading-line.title {
-  height: 18px;
-}
-
-.loading-line.title.second {
-  width: 68%;
-}
-
-.loading-line.meta {
-  width: 42%;
-  height: 10px;
-}
-
-.loading-line.action {
-  height: 38px;
-  border-radius: 6px;
-}
-
 .empty-state,
 .error-state {
   padding: 36px;
@@ -684,12 +645,6 @@ footer span {
   }
 }
 
-@keyframes shimmer {
-  to {
-    background-position: -220% 0;
-  }
-}
-
 @media (max-width: 720px) {
   .site-header {
     min-height: 58px;
@@ -766,14 +721,6 @@ footer span {
     grid-column: 2;
     grid-template-columns: 1fr 1fr;
     gap: 7px;
-  }
-
-  .loading-card {
-    grid-template-columns: 24px minmax(0, 1fr);
-  }
-
-  .loading-card .action {
-    display: none;
   }
 
   .error-state {
