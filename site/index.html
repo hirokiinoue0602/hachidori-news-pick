@@ -104,13 +104,13 @@
           <span class="quiet-note" id="warning"></span>
         </div>
 
-        <div id="loading" class="news-grid" aria-label="読み込み中"></div>
+        <div id="loading" class="news-list" aria-label="読み込み中"></div>
         <div id="error" class="error-state" hidden></div>
         <div id="empty" class="empty-state" hidden>
           <span>このテーマの新着候補はありません</span>
           <button id="show-all" type="button">すべてのニュースを見る</button>
         </div>
-        <div id="news-grid" class="news-grid" hidden></div>
+        <div id="news-grid" class="news-list" hidden></div>
       </section>
 
       <footer>
@@ -120,6 +120,59 @@
         <span>HACHIDORI NEWS PICK</span>
       </footer>
     </main>
+
+    <dialog class="draft-dialog" id="draft-dialog" aria-labelledby="draft-dialog-title">
+      <div class="dialog-header">
+        <div>
+          <p class="dialog-eyebrow">COPY &amp; POST</p>
+          <h2 id="draft-dialog-title">投稿案</h2>
+        </div>
+        <button class="dialog-close" id="dialog-close" type="button" aria-label="閉じる">
+          ×
+        </button>
+      </div>
+
+      <div class="dialog-article">
+        <span id="dialog-source"></span>
+        <strong id="dialog-article-title"></strong>
+      </div>
+
+      <div class="draft-panels">
+        <section class="draft-panel">
+          <div class="draft-heading">
+            <div>
+              <span class="channel-mark x-mark">X</span>
+              <h3>X投稿用</h3>
+            </div>
+            <span class="character-count" id="x-character-count"></span>
+          </div>
+          <textarea id="x-draft" readonly aria-label="X投稿用の文章"></textarea>
+          <button class="copy-button" data-copy-target="x-draft" type="button">
+            X投稿文をコピー
+          </button>
+        </section>
+
+        <section class="draft-panel">
+          <div class="draft-heading">
+            <div>
+              <span class="channel-mark line-mark">LINE</span>
+              <h3>オープンチャット用</h3>
+            </div>
+          </div>
+          <textarea id="line-draft" readonly aria-label="LINEオープンチャット投稿用の文章"></textarea>
+          <button class="copy-button" data-copy-target="line-draft" type="button">
+            LINE投稿文をコピー
+          </button>
+        </section>
+      </div>
+
+      <p class="draft-note">
+        投稿前に元記事を開き、内容・日付・数値に相違がないかご確認ください。
+      </p>
+    </dialog>
+    <div class="copy-toast" id="copy-toast" role="status" aria-live="polite" hidden>
+      コピーしました
+    </div>
     <script type="module" src="./app.js"></script>
   </body>
 </html>
