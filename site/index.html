@@ -26,9 +26,9 @@
     <main>
       <header class="site-header">
         <a class="brand" href="./" aria-label="ハチドリ NEWS PICK ホーム">
-          <span class="brand-dot" aria-hidden="true"></span>
-          <span>ハチドリ</span>
+          <span>ハチドリ電力</span>
           <strong>NEWS PICK</strong>
+          <small>社内用</small>
         </a>
         <button class="refresh-button" id="refresh" type="button">
           <span class="refresh-icon" id="refresh-icon" aria-hidden="true">↻</span>
@@ -36,59 +36,16 @@
         </button>
       </header>
 
-      <section class="hero">
-        <div class="hero-copy">
-          <p class="eyebrow">TODAY'S GOOD NEWS</p>
-          <h1>今日、何を<br />投稿しよう？</h1>
-          <p class="lead">
-            地球や社会にやさしいニュースを、<br class="desktop-break" />
-            ハチドリ電力との相性順で集めました。
-          </p>
-        </div>
-        <div class="hero-note">
-          <span class="note-number" id="item-count">…</span>
-          <span class="note-label">件の新着候補</span>
-          <span class="note-date" id="updated-at">読み込み中</span>
-        </div>
-      </section>
-
       <section class="news-section" id="news-section" aria-busy="true">
-        <div class="toolbar">
-          <div class="category-list" aria-label="テーマで絞り込む">
-            <button class="category active" data-category="すべて" aria-pressed="true">
-              すべて
-            </button>
-            <button class="category" data-category="再エネ" aria-pressed="false">
-              再エネ
-            </button>
-            <button
-              class="category"
-              data-category="電力・暮らし"
-              aria-pressed="false"
-            >
-              電力・暮らし
-            </button>
-            <button
-              class="category"
-              data-category="脱炭素・気候"
-              aria-pressed="false"
-            >
-              脱炭素・気候
-            </button>
-            <button
-              class="category"
-              data-category="サステナブル"
-              aria-pressed="false"
-            >
-              サステナブル
-            </button>
-            <button
-              class="category"
-              data-category="社会・地域"
-              aria-pressed="false"
-            >
-              社会・地域
-            </button>
+        <div class="list-header">
+          <div>
+            <p class="tool-label">ニュース収集</p>
+            <h1>ニュース一覧</h1>
+            <div class="list-meta" aria-live="polite">
+              <span id="result-count">ニュースを探しています</span>
+              <span id="updated-at">読み込み中</span>
+              <span id="warning"></span>
+            </div>
           </div>
           <label class="sort-control">
             <span>並び順</span>
@@ -99,16 +56,10 @@
           </label>
         </div>
 
-        <div class="result-summary" aria-live="polite">
-          <span id="result-count">ニュースを探しています</span>
-          <span class="quiet-note" id="warning"></span>
-        </div>
-
         <div id="loading" class="news-list" aria-label="読み込み中"></div>
         <div id="error" class="error-state" hidden></div>
         <div id="empty" class="empty-state" hidden>
-          <span>このテーマの新着候補はありません</span>
-          <button id="show-all" type="button">すべてのニュースを見る</button>
+          <span>表示できるニュースはありません</span>
         </div>
         <div id="news-grid" class="news-list" hidden></div>
       </section>

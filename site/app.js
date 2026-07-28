@@ -1,6 +1,5 @@
 const state = {
   data: null,
-  category: "すべて",
   sort: "recommended",
   loading: true,
 };
@@ -10,7 +9,6 @@ const elements = {
   refresh: document.querySelector("#refresh"),
   refreshIcon: document.querySelector("#refresh-icon"),
   refreshLabel: document.querySelector("#refresh-label"),
-  itemCount: document.querySelector("#item-count"),
   updatedAt: document.querySelector("#updated-at"),
   resultCount: document.querySelector("#result-count"),
   warning: document.querySelector("#warning"),
@@ -19,8 +17,6 @@ const elements = {
   empty: document.querySelector("#empty"),
   grid: document.querySelector("#news-grid"),
   sort: document.querySelector("#sort"),
-  showAll: document.querySelector("#show-all"),
-  categoryButtons: [...document.querySelectorAll("[data-category]")],
   dialog: document.querySelector("#draft-dialog"),
   dialogClose: document.querySelector("#dialog-close"),
   dialogTitle: document.querySelector("#dialog-article-title"),
@@ -47,26 +43,12 @@ const directSearches = [
   ],
 ];
 
-elements.categoryButtons.forEach((button) => {
-  button.addEventListener("click", () => {
-    state.category = button.dataset.category;
-    syncCategoryButtons();
-    render();
-  });
-});
-
 elements.sort.addEventListener("change", () => {
   state.sort = elements.sort.value;
   render();
 });
 
 elements.refresh.addEventListener("click", () => loadNews());
-
-elements.showAll.addEventListener("click", () => {
-  state.category = "すべて";
-  syncCategoryButtons();
-  render();
-});
 
 elements.dialogClose.addEventListener("click", () => elements.dialog.close());
 elements.dialog.addEventListener("click", (event) => {
@@ -114,11 +96,7 @@ function setLoading(value) {
 
 function render() {
   if (!state.data) return;
-  const allItems = [...state.data.items];
-  const filtered =
-    state.category === "すべて"
-      ? allItems
-      : allItems.filter((item) => item.category === state.category);
+  const filtered = [...state.data.items];
 
   filtered.sort((a, b) => {
     if (state.sort === "newest") {
@@ -130,7 +108,6 @@ function render() {
     );
   });
 
-  elements.itemCount.textContent = state.data.items.length;
   elements.updatedAt.textContent = state.data.generatedAt
     ? `${formatDate(state.data.generatedAt)} 更新`
     : "更新時刻不明";
@@ -354,14 +331,6 @@ function renderError() {
     searches.append(link(href, `${label} ↗`));
   });
   elements.error.replaceChildren(messageArea, searches);
-}
-
-function syncCategoryButtons() {
-  elements.categoryButtons.forEach((button) => {
-    const active = button.dataset.category === state.category;
-    button.classList.toggle("active", active);
-    button.setAttribute("aria-pressed", String(active));
-  });
 }
 
 function link(href, label) {
