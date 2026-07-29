@@ -350,8 +350,26 @@ function buildXPost(item) {
     サステナブル: "#サステナブル #ハチドリ電力",
     "社会・地域": "#社会にやさしい #ハチドリ電力",
   }[item.category];
-  const prefix = `🌏 気になるニュース\n\n「${item.title}」\n\n${bridge || "地球や社会にやさしい未来を考えるニュースです。"}\n\n${hashtags || "#ハチドリ電力"}\n`;
-  return `${truncate(prefix, 247)}${item.url}`;
+  const brandComment = {
+    再エネ:
+      "毎日使う電気を選び直す。そんな小さな選択が、自然エネルギーを広げる力になります。",
+    "電力・暮らし":
+      "毎日使う電気を選ぶことから、大切なものを未来へ守りつないでいけます。",
+    "脱炭素・気候":
+      "大きな気候課題も、毎日の電気という身近な選択から一緒に変えていけます。",
+    サステナブル:
+      "一人ひとりの小さな選択を集め、地球にも社会にもやさしい未来をつくります。",
+    "社会・地域":
+      "毎日の電気を、地域や社会の大切なものを守りつなぐ力に変えていきます。",
+  }[item.category];
+  const beforeTitle = "🌏 気になるニュース\n\n「";
+  const afterTitle = `」\n\n${bridge || "地球や社会にやさしい未来を考えるニュースです。"}\n\n🐦 ハチドリ電力から\n${brandComment || "毎日使う電気を選ぶことから、大切なものを未来へ守りつなぎます。"}\n\n${hashtags || "#ハチドリ電力"}\n`;
+  const titleLimit = Math.max(
+    24,
+    247 - [...beforeTitle].length - [...afterTitle].length,
+  );
+  const title = truncateInline(item.title, titleLimit);
+  return `${beforeTitle}${title}${afterTitle}${item.url}`;
 }
 
 function buildLinePost(item, summary) {
@@ -371,10 +389,10 @@ function buildLinePost(item, summary) {
   return `【今日のニュースピック🌱】\n\n${item.title}\n\n${summary}\n\n💡 ハチドリとの接点\n${bridge || "地球や社会にやさしい未来につながる視点で注目したいニュースです。"}\n\nみなさんは、このニュースをどう感じましたか？\n\n▼元記事\n${item.url}`;
 }
 
-function truncate(value, maxLength) {
+function truncateInline(value, maxLength) {
   const characters = [...value];
   if (characters.length <= maxLength) return value;
-  return `${characters.slice(0, Math.max(0, maxLength - 2)).join("").trim()}…\n`;
+  return `${characters.slice(0, Math.max(0, maxLength - 1)).join("").trim()}…`;
 }
 
 function hash(value) {

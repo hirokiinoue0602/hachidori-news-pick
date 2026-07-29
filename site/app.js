@@ -229,9 +229,16 @@ function buildSummary(item) {
 
 function buildXPost(item) {
   const bridge = shortBridge(item.category);
+  const brandComment = hachidoriComment(item.category);
   const hashtags = categoryHashtags(item.category);
-  const prefix = `🌏 気になるニュース\n\n「${item.title}」\n\n${bridge}\n\n${hashtags}\n`;
-  return `${truncate(prefix, 247)}${item.url}`;
+  const beforeTitle = "🌏 気になるニュース\n\n「";
+  const afterTitle = `」\n\n${bridge}\n\n🐦 ハチドリ電力から\n${brandComment}\n\n${hashtags}\n`;
+  const titleLimit = Math.max(
+    24,
+    247 - [...beforeTitle].length - [...afterTitle].length,
+  );
+  const title = truncateInline(item.title, titleLimit);
+  return `${beforeTitle}${title}${afterTitle}${item.url}`;
 }
 
 function buildLinePost(item) {
@@ -273,10 +280,25 @@ function categoryHashtags(category) {
   }[category] || "#ハチドリ電力";
 }
 
-function truncate(value, maxLength) {
+function hachidoriComment(category) {
+  return {
+    再エネ:
+      "毎日使う電気を選び直す。そんな小さな選択が、自然エネルギーを広げる力になります。",
+    "電力・暮らし":
+      "毎日使う電気を選ぶことから、大切なものを未来へ守りつないでいけます。",
+    "脱炭素・気候":
+      "大きな気候課題も、毎日の電気という身近な選択から一緒に変えていけます。",
+    サステナブル:
+      "一人ひとりの小さな選択を集め、地球にも社会にもやさしい未来をつくります。",
+    "社会・地域":
+      "毎日の電気を、地域や社会の大切なものを守りつなぐ力に変えていきます。",
+  }[category] || "毎日使う電気を選ぶことから、大切なものを未来へ守りつなぎます。";
+}
+
+function truncateInline(value, maxLength) {
   const characters = [...value];
   if (characters.length <= maxLength) return value;
-  return `${characters.slice(0, Math.max(0, maxLength - 2)).join("").trim()}…\n`;
+  return `${characters.slice(0, Math.max(0, maxLength - 1)).join("").trim()}…`;
 }
 
 function estimateXLength(post, url) {
