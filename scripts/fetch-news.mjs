@@ -9,9 +9,21 @@ const queries = [
   ],
   [
     "サステナブル",
-    "サステナブル OR 循環型社会 OR 生物多様性 OR エシカル",
+    "サステナブル OR サステナビリティ OR SDGs OR 持続可能",
   ],
   ["社会・地域", "社会課題 OR 地域共創 OR ソーシャルビジネス OR 寄付"],
+  [
+    "自然・生物多様性",
+    "生物多様性 OR ネイチャーポジティブ OR 自然再生 OR 森林保全 OR 海洋保全",
+  ],
+  [
+    "循環・エシカル",
+    "サーキュラーエコノミー OR 循環型社会 OR 資源循環 OR エシカル消費 OR リユース OR フードロス",
+  ],
+  [
+    "移動・まちづくり",
+    "電気自動車 再エネ OR EV充電 脱炭素 OR V2H OR 脱炭素まちづくり OR ゼロカーボンシティ",
+  ],
 ];
 
 const topicRules = [
@@ -65,14 +77,57 @@ const topicRules = [
     [
       "サステナブル",
       "サステナビリティ",
+      "持続可能",
+      "sdgs",
+      "esg",
+      "環境配慮",
+      "グリーン購入",
+    ],
+  ],
+  [
+    "自然・生物多様性",
+    4,
+    [
+      "生物多様性",
+      "ネイチャーポジティブ",
+      "自然再生",
+      "森林保全",
+      "海洋保全",
+      "環境保全",
+      "生態系",
+      "絶滅危惧",
+      "ブルーカーボン",
+    ],
+  ],
+  [
+    "循環・エシカル",
+    4,
+    [
+      "サーキュラーエコノミー",
       "循環型",
       "資源循環",
-      "生物多様性",
       "エシカル",
       "リユース",
       "リサイクル",
       "フードロス",
-      "環境保全",
+      "アップサイクル",
+      "食品ロス",
+      "脱プラ",
+    ],
+  ],
+  [
+    "移動・まちづくり",
+    5,
+    [
+      "電気自動車",
+      "ev充電",
+      "充電インフラ",
+      "v2h",
+      "v2g",
+      "ゼロカーボンシティ",
+      "脱炭素まちづくり",
+      "スマートシティ",
+      "グリーンスローモビリティ",
     ],
   ],
   [
@@ -104,6 +159,12 @@ const actionTerms = [
   "採択",
   "支援",
   "調査",
+  "連携",
+  "開発",
+  "拡大",
+  "削減",
+  "保全",
+  "再生",
 ];
 
 const negativeTerms = [
@@ -115,6 +176,9 @@ const negativeTerms = [
   "プレゼントキャンペーン",
   "ウェビナー",
   "有料セミナー",
+  "株価",
+  "注目銘柄",
+  "投資判断",
 ];
 
 const results = await Promise.allSettled(
@@ -148,7 +212,8 @@ const scored = dedupeNews(collected)
       b.score - a.score ||
       new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime(),
   );
-const items = selectDiversified(scored, 24, 4).map(addPostDrafts);
+const categoryOrder = queries.map(([category]) => category);
+const items = selectDiversified(scored, 24, 3, categoryOrder).map(addPostDrafts);
 
 await writeFile(
   new URL("../site/news.json", import.meta.url),
@@ -286,26 +351,35 @@ function scoreItem(item, now) {
 function dedupeNews(items) {
   const seen = new Set();
   return items.filter((item) => {
-    const key = item.title
+    const normalized = item.title
       .toLowerCase()
       .replace(/[\s　「」『』【】（）()・、。,:：!！?？\-–—_|｜]/g, "");
+    const key =
+      normalized.length > 45 ? normalized.slice(0, 45) : normalized;
     if (!key || seen.has(key)) return false;
     seen.add(key);
     return true;
   });
 }
 
-function selectDiversified(items, limit, firstPassPerCategory) {
+function selectDiversified(items, limit, firstPassPerCategory, categoryOrder) {
   const selected = [];
   const selectedIds = new Set();
-  const categoryCounts = new Map();
+  const buckets = new Map(
+    categoryOrder.map((category) => [
+      category,
+      items.filter((item) => item.category === category),
+    ]),
+  );
 
-  for (const item of items) {
-    if ((categoryCounts.get(item.category) ?? 0) >= firstPassPerCategory) continue;
-    selected.push(item);
-    selectedIds.add(item.id);
-    categoryCounts.set(item.category, (categoryCounts.get(item.category) ?? 0) + 1);
-    if (selected.length >= limit) return selected;
+  for (let round = 0; round < firstPassPerCategory; round += 1) {
+    for (const category of categoryOrder) {
+      const item = buckets.get(category)?.[round];
+      if (!item) continue;
+      selected.push(item);
+      selectedIds.add(item.id);
+      if (selected.length >= limit) return selected;
+    }
   }
 
   for (const item of items) {
@@ -342,6 +416,12 @@ function buildXPost(item) {
       "地球にも人にもやさしい選択を広げるヒントがありそうです。",
     "社会・地域":
       "地域や社会をより良くする取り組みとして注目です。",
+    "自然・生物多様性":
+      "身近な自然や生きものを未来へ残すために、知っておきたい動きです。",
+    "循環・エシカル":
+      "ものの選び方や使い方を見直すヒントとして注目したいニュースです。",
+    "移動・まちづくり":
+      "移動とまちのしくみを、地球にやさしく変える動きとして注目です。",
   }[item.category];
   const hashtags = {
     再エネ: "#再生可能エネルギー #ハチドリ電力",
@@ -349,6 +429,9 @@ function buildXPost(item) {
     "脱炭素・気候": "#脱炭素 #ハチドリ電力",
     サステナブル: "#サステナブル #ハチドリ電力",
     "社会・地域": "#社会にやさしい #ハチドリ電力",
+    "自然・生物多様性": "#生物多様性 #ハチドリ電力",
+    "循環・エシカル": "#エシカル #ハチドリ電力",
+    "移動・まちづくり": "#脱炭素まちづくり #ハチドリ電力",
   }[item.category];
   const brandComment = {
     再エネ:
@@ -361,6 +444,12 @@ function buildXPost(item) {
       "一人ひとりの小さな選択を集め、地球にも社会にもやさしい未来をつくります。",
     "社会・地域":
       "毎日の電気を、地域や社会の大切なものを守りつなぐ力に変えていきます。",
+    "自然・生物多様性":
+      "好きな景色や生きものを未来へ守りつなぐことも、毎日の電気の選択とつながっています。",
+    "循環・エシカル":
+      "一人ひとりの選択を集め、資源も想いも大切にめぐる未来を一緒につくります。",
+    "移動・まちづくり":
+      "電気の選び方から、移動もまちも地球にやさしい未来へつないでいきます。",
   }[item.category];
   const beforeTitle = "🌏 気になるニュース\n\n「";
   const afterTitle = `」\n\n${bridge || "地球や社会にやさしい未来を考えるニュースです。"}\n\n🐦 ハチドリ電力から\n${brandComment || "毎日使う電気を選ぶことから、大切なものを未来へ守りつなぎます。"}\n\n${hashtags || "#ハチドリ電力"}\n`;
@@ -384,6 +473,12 @@ function buildLinePost(item, summary) {
       "日々の小さな選択が、地球にも人にもやさしい未来につながります。身近な行動に置き換えて考えたいニュースです。",
     "社会・地域":
       "地域や社会の課題は、つながりと選択で変えていけます。より良い循環を生み出す動きとして注目したいニュースです。",
+    "自然・生物多様性":
+      "好きな景色や生きものも、未来へ守りつなぎたい大切なものです。自然と毎日の暮らしのつながりを考えるきっかけになります。",
+    "循環・エシカル":
+      "ものを選び、使い、次へつなぐことも、暮らしからできる小さな選択です。資源が大切にめぐる未来につながる動きとして注目です。",
+    "移動・まちづくり":
+      "電気は家の中だけでなく、移動やまちのしくみにもつながっています。地球にやさしい暮らしの選択肢を広げる視点で注目したいニュースです。",
   }[item.category];
 
   return `【今日のニュースピック🌱】\n\n${item.title}\n\n${summary}\n\n💡 ハチドリとの接点\n${bridge || "地球や社会にやさしい未来につながる視点で注目したいニュースです。"}\n\nみなさんは、このニュースをどう感じましたか？\n\n▼元記事\n${item.url}`;
